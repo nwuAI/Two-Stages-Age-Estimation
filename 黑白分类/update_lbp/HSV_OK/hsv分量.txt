@@ -1,0 +1,9 @@
+ RGB=imread('greens.jpg'); %将图像格式文件读入为MATLAB图像对象数组数据
+ HSV=rgb2hsv(RGB); %真彩图像转换为一个HSV模型空间对应的图像
+ h=HSV(:,:,1);
+ s=HSV(:,:,2);
+ v=HSV(:,:,3);
+ subplot(2,2,1); subimage(RGB); title('原图像'); 
+subplot(2,2,2); subimage(h); title('变换後的图像1'); 
+subplot(2,2,3); subimage(s); title('变换後的图像2'); 
+subplot(2,2,4); subimage(v); title('变换後的图像3'); 
