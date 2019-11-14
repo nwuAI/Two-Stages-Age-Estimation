@@ -1,0 +1,144 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 26 17:10:03 2017
+
+@author: 李帆
+"""
+
+import numpy as np
+import pickle
+from scipy import stats
+
+'''
+归一化输入
+'''
+
+
+def normalize(x):
+    """
+    Normalize a list of sample image data in the range of 0 to 1
+    : x: List of image data.  The image shape is (100, 100, 3)
+    : return: Numpy array of normalize data
+    """
+    # TODO: Implement Function
+    a = 0
+    b = 1
+    grayscale_min = np.min(x)
+    grayscale_max = np.max(x)
+    return a + ((x - grayscale_min) * (b - a)) / (grayscale_max - grayscale_min)
+
+
+'''
+对标签编码
+'''
+
+
+def one_hot_encode(x):
+    """
+    One hot encode a list of sample labels. Return a one-hot encoded vector for each label.
+    : x: List of sample Labels
+    : return: Numpy array of one-hot encoded labels
+    """
+    # TODO: Implement Function
+    x = np.array(x)
+    num_labels = x.shape[0]
+    x_one_hot = np.zeros((num_labels, 85))
+    for i in np.arange(num_labels):
+        number_x = np.arange(0,85,1)
+        y = stats.norm.pdf(number_x,x[i],2)
+        x_one_hot[i][0:] = y
+    return x_one_hot
+
+
+'''
+处理并保存所有数据，train：80%    test：20%
+'''
+
+
+def load_image(batch_id):
+    with open('data_batch_' + str(batch_id), mode='rb') as file:
+        batch = pickle.load(file, encoding='latin1')
+
+    features = np.array(batch['data']).reshape((len(batch['data']), 3, 100, 100)).transpose(0, 2, 3, 1)
+    labels = batch['labels']
+
+    return features, labels
+
+
+def _preprocess_and_save(normalize, one_hot_encode, features, labels, filename):
+    """
+    Preprocess data and save it to file
+    """
+    features = normalize(features)
+    labels = one_hot_encode(labels)
+
+    pickle.dump((features, labels), open(filename, 'wb'))
+
+
+n_batches = 17
+#valid_features = []
+#valid_labels = []
+
+for batch_i in range(1, n_batches + 1):
+    features, labels = load_image(batch_i)
+    #validation_count = int(len(features) * 0.05)
+
+    _preprocess_and_save(
+        normalize,
+        one_hot_encode,
+        features,
+        labels,
+        #features[:-validation_count],
+        #labels[:-validation_count],
+        'preprocess_batch_' + str(batch_i) + '.p')
+
+    #valid_features.extend(features[-validation_count:])
+    #valid_labels.extend(labels[-validation_count:])
+'''
+_preprocess_and_save(
+    normalize,
+    one_hot_encode,
+    np.array(valid_features),
+    np.array(valid_labels),
+    'preprocess_validation.p')
+'''
+
+
+with open('test_batch', mode='rb') as file:
+    batch = pickle.load(file, encoding='latin1')
+
+    # load the test data
+test_features = np.array(batch['data']).reshape((len(batch['data']), 3, 100, 100)).transpose(0, 2, 3, 1)
+test_labels = batch['labels']
+
+# Preprocess and Save all test data
+_preprocess_and_save(
+    normalize,
+    one_hot_encode,
+    test_features,
+    np.array(test_labels),
+    'preprocess_test.p')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
